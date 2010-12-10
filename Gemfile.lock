@@ -1,0 +1,17 @@
+PATH
+  remote: .
+  specs:
+    friendship (0.0.1)
+      activesupport (~> 3.0.0)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activesupport (3.0.3)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport (~> 3.0.0)
+  friendship!
