@@ -5,7 +5,7 @@
 follow(follower, followee)
 unfollow(follower, followee)
 friendships(follower)
-(add mutual_friends(user, user))
+mutual_friends(user, user)
 
 ## Adapters
 
@@ -15,3 +15,8 @@ friendships(follower)
 - Memcached
 - PostgreSQL
 
+## Investigate
+
+- Grape-based API
+- Request stages via EM
+- Bloom-filter storage
