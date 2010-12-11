@@ -11,16 +11,20 @@ module Friendship
     self.storage = klass
   end
 
-  def self.follow(follower, followee)
-    storage.follow(follower, followee)
+  def self.friend(left, right)
+    storage.friend(left, right)
   end
 
-  def self.friendships(follower)
-    storage.friendships(follower)
+  def self.unfriend(left, right)
+    storage.unfriend(left, right)
   end
 
-  def self.friend_of?(followee, follower)
-    storage.friend_of?(followee, follower)
+  def self.friendships(left)
+    storage.friendships(left)
+  end
+
+  def self.friend_of?(right, left)
+    storage.friend_of?(right, left)
   end
 
   def self.mutual_friends(left, right)

@@ -2,9 +2,9 @@
 
 ## Protocol
 
-follow(follower, followee)
-unfollow(follower, followee)
-friendships(follower)
+friend(user, user)
+unfriend(user, user)
+friendships(user)
 mutual_friends(user, user)
 
 ## Adapters

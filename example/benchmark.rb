@@ -19,7 +19,7 @@ if ENV['POPULATE']
     redis.flushdb
     puts "Populating with #{$users.length} users"
     $users.each do |u|
-      friends.times { Friendship.follow(u, random_user) }
+      friends.times { Friendship.friend(u, random_user) }
     end
   end
   puts "Populating #{$users.length} users took #{result.real}s (#{result.utime} user)"

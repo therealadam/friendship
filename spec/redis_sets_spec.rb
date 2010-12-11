@@ -10,25 +10,32 @@ describe Friendship::Storage::RedisSets do
   end
 
   it "creates and fetches relationships" do
-    subject.follow("john", "paul")
-    subject.follow("john", "george")
-    subject.follow("john", "ringo")
+    subject.friend("john", "paul")
+    subject.friend("john", "george")
+    subject.friend("john", "ringo")
 
     subject.friendships("john").should == %w{ringo george paul}
   end
 
   it "checks if one user is friends with another" do
-    subject.follow("john", "paul")
-    subject.follow("paul", "john")
+    subject.friend("john", "paul")
+    subject.friend("paul", "john")
     
     subject.friend_of?("john", "paul").should be_true
   end
 
+  it "unfriends a user" do
+    subject.friend("john", "paul")
+    subject.unfriend("john", "paul")
+
+    subject.friend_of?("john", "paul").should be_false
+  end
+
   it "finds mutual friends" do
-    subject.follow("john", "george")
-    subject.follow("john", "ringo")
-    subject.follow("paul", "george")
-    subject.follow("paul", "ringo")
+    subject.friend("john", "george")
+    subject.friend("john", "ringo")
+    subject.friend("paul", "george")
+    subject.friend("paul", "ringo")
 
     subject.mutual_friends("john", "paul").should == ["ringo", "george"]
   end
