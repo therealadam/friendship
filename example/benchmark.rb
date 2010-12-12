@@ -2,35 +2,79 @@ require "ffaker"
 require "redis"
 require "friendship"
 require "benchmark"
+require "yaml"
+require "system_timer"
 
-def random_user
-  $users[rand($users.length)]
-end
+module FriendshipBenchmark
+  USERLIST = "userlist.yml"
 
-$users = 100_000.times.map { Faker::Name.name }
-friends = 50
-ops = 100
+  def self.generate_userlist(length)
+    users = length.times.map { Faker::Name.name }
+    data = YAML.dump(users)
+    File.open(USERLIST, "w") { |f| f.write(data) }
+    users
+  end
 
-redis = Redis.new(:db => "friendship-benchmark")
-Friendship.use(Friendship::Storage::RedisSets, redis)
+  def self.load_userlist
+    data = File.read(USERLIST)
+    YAML.load(data)
+  end
 
-if ENV['POPULATE']
-  result = Benchmark.measure do
-    redis.flushdb
-    puts "Populating with #{$users.length} users"
-    $users.each do |u|
-      friends.times { Friendship.friend(u, random_user) }
+  def self.random_user(users)
+    users[rand(users.length)]
+  end
+
+  def self.populate(users, friends)
+    result = Benchmark.measure do
+      users.each do |u|
+        friends.times { Friendship.friend(u, random_user(users)) }
+      end
     end
   end
-  puts "Populating #{$users.length} users took #{result.real}s (#{result.utime} user)"
+
+  def self.measure_friend_of(ops, users)
+    ops.times do
+      user = random_user(users)
+      friend = random_user(users)
+      Friendship.friend_of?(user, friend)
+    end
+  end
+
 end
 
-result = Benchmark.measure do
-  ops.times do
-    user = random_user
-    friend = random_user
-    Friendship.friend_of?(user, friend)
+users_count = 100_000
+friends = 50
+ops = 100
+iterations = 1000
+
+engines = {
+  "redis sets" => lambda { Friendship.use(Friendship::Storage::RedisSets, Redis.new(:db => 0)) },
+  "redis lists" => lambda { Friendship.use(Friendship::Storage::RedisLists, Redis.new(:db => 1)) }
+}
+
+case ARGV[0]
+when 'populate'
+  users = FriendshipBenchmark.generate_userlist(users_count)
+  puts "Populating #{users.length} users"
+  Benchmark.bm do |b|
+    engines.each do |name, connection|
+      b.report(name) do
+        connection.call
+        FriendshipBenchmark.populate(users, friends)
+      end
+    end
+  end
+when 'benchmark'
+  users = FriendshipBenchmark.load_userlist
+  puts "#{users_count} users, #{friends} friends, #{ops} lookups, #{iterations} iterations"
+  Benchmark.bmbm(25) do |b|
+    users = FriendshipBenchmark.load_userlist
+    engines.each do |name, connection|
+      connection.call
+      b.report(name) do
+        iterations.times { FriendshipBenchmark.measure_friend_of(ops, users) }
+      end
+    end
   end
 end
 
-puts "#{$users.length} users, #{friends} friends, #{ops} lookups, #{result.real}s (#{result.utime} user)"

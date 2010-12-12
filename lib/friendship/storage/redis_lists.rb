@@ -1,4 +1,5 @@
 require "redis"
+require "set"
 
 module Friendship::Storage::RedisLists
 
