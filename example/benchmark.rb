@@ -49,7 +49,8 @@ iterations = 1000
 
 engines = {
   "redis sets" => lambda { Friendship.use(Friendship::Storage::RedisSets, Redis.new(:db => 0)) },
-  "redis lists" => lambda { Friendship.use(Friendship::Storage::RedisLists, Redis.new(:db => 1)) }
+  "redis lists" => lambda { Friendship.use(Friendship::Storage::RedisLists, Redis.new(:db => 1)) },
+  "cassandra" => lambda { Friendship.use(Friendship::Storage::Cassandra, Cassandra.new("Friendship")) }
 }
 
 case ARGV[0]
