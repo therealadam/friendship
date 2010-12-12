@@ -7,7 +7,7 @@ shared_examples_for "friendship storage" do
     subject.friend("john", "george")
     subject.friend("john", "ringo")
 
-    subject.friendships("john").should == %w{ringo george paul}
+    subject.friendships("john").sort.should == %w{ringo george paul}.sort
   end
 
   it "checks if one user is friends with another" do
